@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: weather-api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: weather-api
+  name: weather-api
+  namespace: weather-api
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: weather-api
+    spec:
+      containers:
+        - image: localhost:8888/kube_weather:latest  # your image name and address here
+          name: weather-api
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          env:
+            - name: APP_OWM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: owm-credentials
+                  key: key
+  selector:
+    matchLabels:
+      app: weather-api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: weather-api-service
+  namespace: weather-api
+  labels:
+    app: weather-api
+spec:
+  selector:
+    app: weather-api
+  ports:
+    - name: http
+      targetPort: 8000
+      port: 8000
+      protocol: TCP

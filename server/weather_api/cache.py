@@ -12,7 +12,7 @@ class InMemoryCache:
         data: dict
 
         @property
-        def age(self):
+        def age(self) -> float:
             return datetime.datetime.now().timestamp() - self.ts
 
     def __init__(self, ttl: t.Optional[int] = None):
@@ -22,7 +22,7 @@ class InMemoryCache:
         self.ttl = ttl or self.default_ttl
         self._cache: t.Dict[str, InMemoryCache.Entry] = {}
 
-    def get(self, key):
+    def get(self, key: str) -> dict | None:
         entry = self._cache.get(key)
         if not entry or entry.age > self.ttl:
             if entry:
@@ -30,9 +30,9 @@ class InMemoryCache:
             return None
         return entry.data
 
-    def set(self, key, data):
+    def set(self, key: str, data: dict):
         self._cache[key] = self.Entry(datetime.datetime.now().timestamp(), data)
 
 
-def get_cache():
+def get_cache() -> InMemoryCache:
     return InMemoryCache()

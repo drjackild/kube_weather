@@ -17,11 +17,11 @@ class ApiMethods:
 
 
 class RestClientResponse:
-    def __init__(self, data: t.Union[str, dict], status: int):
+    def __init__(self, data: dict | str | None, status: int):
         self.data = data
         self.status = status
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__} <{self.status}>"
 
 
@@ -64,23 +64,9 @@ class OWMRestClient:
         self,
         city: str,
         units: Units.CHOICES = Units.metric,
-    ):
+    ) -> RestClientResponse:
         params = {"q": city, "appid": settings.OWM_API_KEY, "units": units}
         uri = f"weather?{urlencode(params)}"
-        response = await self._make_request(uri, method=ApiMethods.get)
-        return response
-
-    async def onecall(
-        self,
-        lat: float,
-        lon: float,
-        units: Units.CHOICES = Units.metric,
-        exclude: t.Optional[t.Iterable[OneCallField.CHOICES]] = None,
-    ) -> RestClientResponse:
-        params = {"lat": lat, "lon": lon, "appid": settings.OWM_API_KEY, "units": units}
-        if exclude:
-            params["exclude"] = ",".join(exclude)
-        uri = f"onecall?{urlencode(params)}"
         response = await self._make_request(uri, method=ApiMethods.get)
         return response
 
@@ -100,7 +86,7 @@ class OWMRestClient:
                 for i in range(0, self.retry_policy.attempts):
                     await asyncio.sleep(interval)
                     logger.warning(
-                        f"Retry {i+1}/{self.retry_policy.attempts} ({interval}s): {kwargs.get('url')}"
+                        f"Retry {i + 1}/{self.retry_policy.attempts} ({interval}s): {kwargs.get('url')}"
                     )
                     r = await session_method(**kwargs)
                     if r.status not in self.retry_statuses:

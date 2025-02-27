@@ -1,17 +1,23 @@
 from http import HTTPStatus
+from typing import cast
 
 from fastapi import FastAPI
 from fastapi.logger import logger
 
-from weather_api.cache import get_cache
+from weather_api.cache import InMemoryCache, get_cache
 from weather_api.owm_client import OWMRestClient
 
-api = FastAPI()
+
+class WeatherAPI(FastAPI):
+    cache: InMemoryCache
+
+
+api = WeatherAPI()
 api.cache = get_cache()
 
 
 @api.get("/forecast")
-async def get_forecast(city):
+async def get_forecast(city: str) -> dict:
     cached_data = api.cache.get(city)
     if cached_data:
         return cached_data
@@ -24,20 +30,22 @@ async def get_forecast(city):
             f"Unsuccessful response from OWM. Status: {weather.status}. Response: {weather.data}"
         )
         raise ApiException("Something went wrong")
+    data = weather.data
+    data = cast(dict, data)
     response = {
         "status": HTTPStatus.OK,
         "data": {
             "city": {
-                "coord": weather.data["coord"],
-                "country": weather.data["sys"]["country"],
+                "coord": data["coord"],
+                "country": data["sys"]["country"],
             },
-            "temp": f'{weather.data["main"]["temp"]} Cº',
-            "temp_min": f'{weather.data["main"]["temp_min"]} Cº',
-            "temp_max": f'{weather.data["main"]["temp_max"]} Cº',
-            "feels": f'{weather.data["main"]["feels_like"]} Cº',
-            "pressure": f'{weather.data["main"]["pressure"]} Hg',
-            "humidity": f'{weather.data["main"]["humidity"]}%',
-            "wind_speed": f'{weather.data["wind"]["speed"]} m/s',
+            "temp": f"{data['main']['temp']} Cº",
+            "temp_min": f"{data['main']['temp_min']} Cº",
+            "temp_max": f"{data['main']['temp_max']} Cº",
+            "feels": f"{data['main']['feels_like']} Cº",
+            "pressure": f"{data['main']['pressure']} Hg",
+            "humidity": f"{data['main']['humidity']}%",
+            "wind_speed": f"{data['wind']['speed']} m/s",
         },
     }
     api.cache.set(city, response)

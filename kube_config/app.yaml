@@ -3,36 +3,13 @@ kind: Namespace
 metadata:
   name: weather-api
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Secret
 metadata:
-  labels:
-    app: weather-api
-  name: weather-api
+  name: owm-credentials
   namespace: weather-api
-spec:
-  replicas: 3
-  template:
-    metadata:
-      labels:
-        app: weather-api
-    spec:
-      containers:
-        - image: localhost:8888/kube_weather:latest  # your image name and address here
-          name: weather-api
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 8000
-              protocol: TCP
-          env:
-            - name: APP_OWM_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: owm-credentials
-                  key: key
-  selector:
-    matchLabels:
-      app: weather-api
+stringData:
+  key: ${APP_OWM_API_KEY}
 ---
 apiVersion: v1
 kind: Service
@@ -49,3 +26,53 @@ spec:
       targetPort: 8000
       port: 8000
       protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: weather-api-ingress
+  namespace: weather-api
+spec:
+  ingressClassName: "nginx"
+  rules:
+    - host: weather.local
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: weather-api-service
+                port:
+                  number: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: weather-api
+  name: weather-api
+  namespace: weather-api
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: weather-api
+    spec:
+      containers:
+        - image: docker.io/library/weather-api:latest
+          name: weather-api
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          env:
+            - name: APP_OWM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: owm-credentials
+                  key: key
+  selector:
+    matchLabels:
+      app: weather-api

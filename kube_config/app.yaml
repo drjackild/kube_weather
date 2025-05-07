@@ -54,6 +54,9 @@ metadata:
   name: weather-api
   namespace: weather-api
 spec:
+  selector:
+    matchLabels:
+      app: weather-api
   replicas: 3
   template:
     metadata:
@@ -73,6 +76,10 @@ spec:
                 secretKeyRef:
                   name: owm-credentials
                   key: key
-  selector:
-    matchLabels:
-      app: weather-api
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2

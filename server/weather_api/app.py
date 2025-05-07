@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import cast
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.logger import logger
 
 from weather_api.cache import InMemoryCache, get_cache
@@ -50,6 +50,11 @@ async def get_forecast(city: str) -> dict:
     }
     api.cache.set(city, response)
     return response
+
+
+@api.get("/health")
+async def health() -> Response:
+    return Response(status_code=HTTPStatus.OK)
 
 
 class ApiException(Exception):

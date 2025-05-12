@@ -24,10 +24,10 @@ docker build -t weather-api:latest .
 kind load docker-image weather-api:latest
 ```
 
-3. Go to `kube_config` directory:
+3. Go to `k8s` directory:
 
 ```shell
-cd kube_config
+cd k8s
 ```
 
 3. Start Nginx Ingress controller and wait untill it's ready:

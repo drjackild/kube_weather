@@ -19,6 +19,7 @@ metadata:
   labels:
     app: weather-api
 spec:
+  type: LoadBalancer
   selector:
     app: weather-api
   ports:
@@ -26,25 +27,25 @@ spec:
       targetPort: 8000
       port: 8000
       protocol: TCP
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: weather-api-ingress
-  namespace: weather-api
-spec:
-  ingressClassName: "nginx"
-  rules:
-    - host: weather.local
-      http:
-        paths:
-          - pathType: Prefix
-            path: /
-            backend:
-              service:
-                name: weather-api-service
-                port:
-                  number: 8000
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: weather-api-ingress
+#   namespace: weather-api
+# spec:
+#   ingressClassName: "nginx"
+#   rules:
+#     - host: weather.local
+#       http:
+#         paths:
+#           - pathType: Prefix
+#             path: /
+#             backend:
+#               service:
+#                 name: weather-api-service
+#                 port:
+#                   number: 8000
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -64,9 +65,9 @@ spec:
         app: weather-api
     spec:
       containers:
-        - image: docker.io/library/weather-api:latest
+        - image: us-west3-docker.pkg.dev/kcna-course/artifacts-repo/weather-api:latest
           name: weather-api
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           ports:
             - containerPort: 8000
               protocol: TCP

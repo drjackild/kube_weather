@@ -4,23 +4,17 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = [
-    "aiohttp>=3.11.13",
-    "fastapi>=0.115.8",
-    "uvicorn>=0.34.0",
-]
+dependencies = ["aiohttp>=3.11.13", "fastapi>=0.115.8", "uvicorn>=0.34.0"]
 
 [dependency-groups]
-dev = [
-    "pytest>=8.3.4",
-]
+dev = ["pytest>=8.3.4"]
 
 [tool.ruff]
 # Same as Black.
 line-length = 88
 indent-width = 4
 
-target-version = "py313"  # Adjust to your Python version
+target-version = "py313" # Adjust to your Python version
 
 [tool.ruff.lint]
 # Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
@@ -61,4 +55,4 @@ docstring-code-format = false
 docstring-code-line-length = "dynamic"
 
 [tool.ruff.lint.pydocstyle]
-convention = "google"  # Accepts: "google", "numpy", or "pep257".
+convention = "google" # Accepts: "google", "numpy", or "pep257".

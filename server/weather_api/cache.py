@@ -34,5 +34,5 @@ class InMemoryCache:
         self._cache[key] = self.Entry(datetime.datetime.now().timestamp(), data)
 
 
-def get_cache() -> InMemoryCache:
-    return InMemoryCache()
+def get_cache(ttl: int | None = None) -> InMemoryCache:
+    return InMemoryCache(ttl)

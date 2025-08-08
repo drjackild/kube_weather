@@ -7,6 +7,7 @@ HOST = config("APP_HOST", default="0.0.0.0")
 PORT = config("APP_PORT", cast=int, default=8000)
 DEBUG = config("APP_DEBUG", cast=bool, default=False)
 OWM_API_KEY = config("APP_OWM_API_KEY", cast=Secret)
+CACHE_TTL = config("APP_CACHE_TTL", cast=int, default=600)
 
 LOGGING_CONFIG = {
     "version": 1,

@@ -7,13 +7,15 @@ from fastapi.logger import logger
 from weather_api.cache import InMemoryCache, get_cache
 from weather_api.owm_client import OWMRestClient
 
+from . import settings
+
 
 class WeatherAPI(FastAPI):
     cache: InMemoryCache
 
 
 api = WeatherAPI()
-api.cache = get_cache()
+api.cache = get_cache(settings.CACHE_TTL)
 
 
 @api.get("/forecast")

@@ -27,25 +27,14 @@ spec:
       targetPort: 8000
       port: 8000
       protocol: TCP
-# ---
-# apiVersion: networking.k8s.io/v1
-# kind: Ingress
-# metadata:
-#   name: weather-api-ingress
-#   namespace: weather-api
-# spec:
-#   ingressClassName: "nginx"
-#   rules:
-#     - host: weather.local
-#       http:
-#         paths:
-#           - pathType: Prefix
-#             path: /
-#             backend:
-#               service:
-#                 name: weather-api-service
-#                 port:
-#                   number: 8000
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: weather-api-config
+  namespace: weather-api
+data:
+  cacheTtl: "300"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -65,9 +54,9 @@ spec:
         app: weather-api
     spec:
       containers:
-        - image: us-west3-docker.pkg.dev/kcna-course/artifacts-repo/weather-api:latest
+        - image: local.dev/weather-api:latest
           name: weather-api
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
               protocol: TCP
@@ -77,6 +66,11 @@ spec:
                 secretKeyRef:
                   name: owm-credentials
                   key: key
+            - name: APP_CACHE_TTL
+              valueFrom:
+                configMapKeyRef:
+                  name: weather-api-config
+                  key: cacheTtl
           readinessProbe:
             httpGet:
               path: /health
